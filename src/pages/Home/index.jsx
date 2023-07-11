@@ -1,11 +1,27 @@
 import styles from './home.module.css'
 import { Header } from '../../components/header'
-import { Link } from 'react-router-dom'
+import { Link} from 'react-router-dom'
+
+import { useSelector, useDispatch } from 'react-redux'
+import { deleteAddress, fetchUserById, fetchUsers } from '../../redux/user/slice'
 
 export function Home() {
+  const { user, users, loading } = useSelector( (rootReducer) => rootReducer.user)
+  const dispatch = useDispatch()
 
   function handleDeleteAddress(){
+    dispatch(deleteAddress())
     alert("Endereço deletado com sucesso!")
+  }
+
+  function handleFetchUsers(){
+    dispatch(fetchUsers())
+  }
+
+  function handleFetchUserById(){
+    const userId = 5;
+
+    dispatch(fetchUserById(userId))
   }
 
   return (
@@ -27,18 +43,38 @@ export function Home() {
         <main className={styles.content}>
           <div className={styles.message}>
             <h1 className={styles.title}>
-              Olá Visitante, bem vindo!
+              Olá {user ? user.name : "Visitante"}, bem vindo!
             </h1>
 
-            <span>Email: ....</span>
+            <span>Email: {user ? user.email : ""}</span>
 
-
-            <strong className={styles.addressLabel}>Endereço atual:</strong>
-            <div className={styles.address}>
-              <p>Rua centro, n 123</p>
+            {user && user.address &&(
+              <>
+                <strong className={styles.addressLabel}>Endereço atual:</strong>
+                <div className={styles.address}>
+                <p>{user.address.location}, n {user.address.number}</p>
               
-              <button onClick={handleDeleteAddress}>Deletar endereço</button>
+               <button onClick={handleDeleteAddress}>Deletar endereço</button>
             </div>
+              </>
+            )}
+
+            <hr/>
+            <br/>
+
+            <h2>Lista de Usuarios</h2>
+            <button onClick={handleFetchUsers}>Buscar Usuarios</button>
+            <button onClick={handleFetchUserById}>Buscar usuario com ID</button>
+            <br/>
+
+            {loading && <strong> Carregando Usuários...</strong>}
+            {/* se loading estiver true, então: */}
+            {!loading && users.map( (user) => (
+              <div key={user.id}>
+                <p>ID: {user.id} | {user.name}</p>
+              </div>
+            ))}
+
 
           </div>
 
